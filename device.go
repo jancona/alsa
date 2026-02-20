@@ -192,7 +192,11 @@ func (device *Device) Prepare() error {
 	device.swparams.PeriodStep = 1
 	device.swparams.AvailMin = alsatype.Uframes(buf_size)
 	device.swparams.XferAlign = 1
-	device.swparams.StartThreshold = alsatype.Uframes(buf_size)
+	if device.Record {
+		device.swparams.StartThreshold = 1
+	} else {
+		device.swparams.StartThreshold = alsatype.Uframes(buf_size)
+	}
 	device.swparams.StopThreshold = alsatype.Uframes(buf_size * 2)
 	device.swparams.Proto = device.pversion
 	device.swparams.TstampType = 1
