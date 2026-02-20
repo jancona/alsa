@@ -183,19 +183,21 @@ func (device *Device) Prepare() error {
 
 	device.hwparams_prev = device.hwparams
 
-	// final buf size
+	// final buf and period sizes
 	buf_size := int(device.hwparams.Intervals[paramBufferSize-paramFirstInterval].Max)
+	period_size := int(device.hwparams.Intervals[paramPeriodSize-paramFirstInterval].Max)
 
 	device.swparams = alsatype.SwParams{}
 	device.swparams_prev = alsatype.SwParams{}
 
 	device.swparams.PeriodStep = 1
-	device.swparams.AvailMin = alsatype.Uframes(buf_size)
 	device.swparams.XferAlign = 1
 	if device.Record {
 		device.swparams.StartThreshold = 1
+		device.swparams.AvailMin = alsatype.Uframes(period_size)
 	} else {
 		device.swparams.StartThreshold = alsatype.Uframes(buf_size)
+		device.swparams.AvailMin = alsatype.Uframes(buf_size)
 	}
 	device.swparams.StopThreshold = alsatype.Uframes(buf_size * 2)
 	device.swparams.Proto = device.pversion
