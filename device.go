@@ -196,8 +196,11 @@ func (device *Device) Prepare() error {
 		device.swparams.StartThreshold = 1
 		device.swparams.AvailMin = alsatype.Uframes(period_size)
 	} else {
-		device.swparams.StartThreshold = alsatype.Uframes(buf_size)
-		device.swparams.AvailMin = alsatype.Uframes(buf_size)
+		// For playback: start as soon as one period is buffered (avoids
+		// blocking Write until the entire buffer is full) and wake the
+		// writer when one period of space is available.
+		device.swparams.StartThreshold = alsatype.Uframes(period_size)
+		device.swparams.AvailMin = alsatype.Uframes(period_size)
 	}
 	device.swparams.StopThreshold = alsatype.Uframes(buf_size * 2)
 	device.swparams.Proto = device.pversion
