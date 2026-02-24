@@ -160,6 +160,25 @@ func (device *Device) Debug(v bool) {
 	device.debug = v
 }
 
+// Drain waits for all pending playback frames to be played by the hardware,
+// then stops the stream. The stream transitions to the SETUP state.
+// For capture devices, this stops recording and discards unread data.
+func (device *Device) Drain() error {
+	if err := ioctl(device.fh.Fd(), ioctl_encode(0, 0, cmdPCMDrain), nil); err != nil {
+		return fmt.Errorf("Device drain failure: %v", err)
+	}
+	return nil
+}
+
+// Drop immediately stops the stream and discards all pending frames.
+// The stream transitions to the SETUP state.
+func (device *Device) Drop() error {
+	if err := ioctl(device.fh.Fd(), ioctl_encode(0, 0, cmdPCMDrop), nil); err != nil {
+		return fmt.Errorf("Device drop failure: %v", err)
+	}
+	return nil
+}
+
 func (device *Device) Prepare() error {
 	if device.debug {
 		fmt.Println("Final hardware parameter changes:")
